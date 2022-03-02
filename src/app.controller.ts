@@ -8,7 +8,7 @@ export class AppController {
 
   @UseGuards(AuthGuard('jwt')) // 이 라우팅은 auth0로 인해 보호됨
   @Get()
-  getHello(): string {
+  getHello() {
     return this.appService.getHello();
   }
 }
