@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import {
-  BlockProperty,
+  BlockFields,
   BlockTypes,
 } from '../interfaces/blockProperties.interface';
 
@@ -23,7 +23,7 @@ export class Block {
   type: BlockTypes; // title_1, image 등의 블록 타입을 지정
 
   @Column({ type: 'json' })
-  properties: BlockProperty; // type에 따른 블록의 데이터
+  properties: BlockFields['properties']; // type에 따른 블록의 데이터
 
   @TreeChildren()
   children: Block[]; // 문제점: Typeorm 에서 children의 순서를 지정하기 어려움

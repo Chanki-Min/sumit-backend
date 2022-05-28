@@ -9,11 +9,17 @@ import {
 } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
 import { CreateBlockDto } from './dto/create-block.dto';
+import { CreateRootDto } from './dto/create-root.dto';
 import { UpdateBlockDto } from './dto/update-block.dto';
 
 @Controller('blocks')
 export class BlocksController {
   constructor(private readonly blocksService: BlocksService) {}
+
+  @Post('root')
+  createRoot(@Body() createBlockDto: CreateRootDto) {
+    return this.blocksService.createRoot(createBlockDto);
+  }
 
   @Post()
   create(@Body() createBlockDto: CreateBlockDto) {
@@ -27,16 +33,16 @@ export class BlocksController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.blocksService.findOne(+id);
+    return this.blocksService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBlockDto: UpdateBlockDto) {
-    return this.blocksService.update(+id, updateBlockDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateBlockDto: UpdateBlockDto) {
+  //   return this.blocksService.update(+id, updateBlockDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.blocksService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.blocksService.remove(+id);
+  // }
 }
