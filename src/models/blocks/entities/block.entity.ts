@@ -34,6 +34,9 @@ export class Block {
   @TreeParent()
   parent: Block;
 
+  @Column({ nullable: true })
+  pid: string;
+
   @CreateDateColumn()
   createAt: Date;
 

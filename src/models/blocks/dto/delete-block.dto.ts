@@ -1,8 +1,8 @@
 import { BlockDTO } from './create-block.dto';
 
-export class UpdateBlockDto {
+export interface DeleteBlockDTO {
   rootBlockId: string;
-  block: BlockDTO;
+  blockId: string;
   csr: {
     blockPath: number[];
   };
