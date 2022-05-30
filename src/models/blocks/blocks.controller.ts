@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { BlocksService } from './blocks.service';
 import { CreateBlockDto } from './dto/create-block.dto';
+import { CreateBlukDto } from './dto/create-bulk.dto';
 import { CreateRootDto } from './dto/create-root.dto';
 import { DeleteBlockDTO } from './dto/delete-block.dto';
 import { MoveBlockDTO } from './dto/move-block.dto';
@@ -17,6 +18,10 @@ import { UpdateBlockDto } from './dto/update-block.dto';
 @Controller('blocks')
 export class BlocksController {
   constructor(private readonly blocksService: BlocksService) {}
+  @Post('bulk')
+  createBulk(@Body() createBlukDto: CreateBlukDto) {
+    return this.blocksService.createBulk(createBlukDto);
+  }
 
   @Post('root')
   createRoot(@Body() createBlockDto: CreateRootDto) {

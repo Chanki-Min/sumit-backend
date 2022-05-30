@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { chown } from 'fs';
 import { TreeRepository } from 'typeorm';
 import { CreateBlockDto } from './dto/create-block.dto';
+import { CreateBlukDto } from './dto/create-bulk.dto';
 import { CreateRootDto } from './dto/create-root.dto';
 import { DeleteBlockDTO } from './dto/delete-block.dto';
 import { IndentBlockDTO } from './dto/indent-block.dto';
@@ -151,6 +152,24 @@ export class BlocksService {
     //   if (indentBlockDTO.directon === 'right') {
     //   } else {
     //   }
+  }
+
+  async createBulk({ block }: CreateBlukDto, parent?: Block) {
+    const newBlock = this.treeRepository.create();
+    newBlock.uuid = block.uuid.replace(/-/gi, '');
+    newBlock.type = block.type;
+    newBlock.properties = block.properties;
+    newBlock.order = block.order;
+    if (parent) {
+      newBlock.parent = parent;
+    }
+    const saved = await this.treeRepository.save(newBlock);
+
+    if (block.children.length > 0) {
+      for (const child of block.children.sort((a, b) => a.order - b.order)) {
+        await this.createBulk({ block: child }, saved);
+      }
+    }
   }
 }
 
