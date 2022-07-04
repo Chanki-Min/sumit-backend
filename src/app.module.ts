@@ -5,6 +5,7 @@ import { getConnectionOptions } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthzModule } from './authz/authz.module';
+import { BlocksModule } from './models/blocks/blocks.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthzModule } from './authz/authz.module';
         }),
     }),
     AuthzModule,
+    BlocksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
