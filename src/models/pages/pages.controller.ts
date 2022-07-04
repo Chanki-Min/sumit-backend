@@ -6,37 +6,49 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
-import { PagesService } from './pages.service';
+import { AuthGuard } from '@nestjs/passport';
+
+import { User, AuthzUser } from '../../decorators/user.decorator';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
+import { PagesService } from './pages.service';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('pages')
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
   @Post()
-  create(@Body() createPageDto: CreatePageDto) {
-    return this.pagesService.create(createPageDto);
+  create(
+    @User() { sub: userId }: AuthzUser,
+    @Body() createPageDto: CreatePageDto,
+  ) {
+    return this.pagesService.create(userId, createPageDto);
   }
 
   @Get()
-  findAll() {
-    return this.pagesService.findAll();
+  findAllByUser(@User() { sub: userId }: AuthzUser) {
+    return this.pagesService.findAll(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pagesService.findOne(+id);
+  @Get(':pageId')
+  findOne(@User() { sub: userId }: AuthzUser, @Param('pageId') pageId: string) {
+    return this.pagesService.findOne(userId, pageId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePageDto: UpdatePageDto) {
-    return this.pagesService.update(+id, updatePageDto);
+  @Patch(':pageId')
+  update(
+    @User() { sub: userId }: AuthzUser,
+    @Param('pageId') pageId: string,
+    @Body() updatePageDto: UpdatePageDto,
+  ) {
+    return this.pagesService.update(userId, pageId, updatePageDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pagesService.remove(+id);
+  @Delete(':pageId')
+  remove(@User() { sub: userId }: AuthzUser, @Param('pageId') pageId: string) {
+    return this.pagesService.remove(userId, pageId);
   }
 }
