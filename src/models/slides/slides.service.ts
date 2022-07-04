@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { CreateSlideDto } from './dto/create-slide.dto';
 import { UpdateSlideDto } from './dto/update-slide.dto';
 
