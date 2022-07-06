@@ -7,8 +7,10 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { of } from 'rxjs';
 
 import { User, AuthzUser } from '../../decorators/user.decorator';
 import { CreatePageDto } from './dto/create-page.dto';
@@ -21,7 +23,7 @@ export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
   @Post()
-  create(
+  async create(
     @User() { sub: userId }: AuthzUser,
     @Body() createPageDto: CreatePageDto,
   ) {
@@ -29,17 +31,20 @@ export class PagesController {
   }
 
   @Get()
-  findAllByUser(@User() { sub: userId }: AuthzUser) {
+  async findAllByUser(@User() { sub: userId }: AuthzUser) {
     return this.pagesService.findAll(userId);
   }
 
   @Get(':pageId')
-  findOne(@User() { sub: userId }: AuthzUser, @Param('pageId') pageId: string) {
-    return this.pagesService.findOne(userId, pageId);
+  async findOne(
+    @User() { sub: userId }: AuthzUser,
+    @Param('pageId') pageId: string,
+  ) {
+    return of(this.pagesService.findOne(userId, pageId));
   }
 
   @Patch(':pageId')
-  update(
+  async update(
     @User() { sub: userId }: AuthzUser,
     @Param('pageId') pageId: string,
     @Body() updatePageDto: UpdatePageDto,
@@ -47,8 +52,13 @@ export class PagesController {
     return this.pagesService.update(userId, pageId, updatePageDto);
   }
 
+  @HttpCode(204)
   @Delete(':pageId')
-  remove(@User() { sub: userId }: AuthzUser, @Param('pageId') pageId: string) {
-    return this.pagesService.remove(userId, pageId);
+  async remove(
+    @User() { sub: userId }: AuthzUser,
+    @Param('pageId') pageId: string,
+  ) {
+    await this.pagesService.remove(userId, pageId);
+    return;
   }
 }
