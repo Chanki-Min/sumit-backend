@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { BlocksService } from './blocks.service';
 import { CreateBlockDto } from './dto/create-block.dto';
@@ -18,6 +19,8 @@ import { DeleteBlockDTO } from './dto/delete-block.dto';
 import { MoveBlockDTO } from './dto/move-block.dto';
 import { UpdateBlockDto } from './dto/update-block.dto';
 
+@ApiBearerAuth()
+@ApiTags('blocks')
 @UseGuards(AuthGuard('jwt'))
 @Controller('blocks')
 export class BlocksController {

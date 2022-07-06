@@ -10,6 +10,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { of } from 'rxjs';
 
 import { User, AuthzUser } from '../../decorators/user.decorator';
@@ -17,6 +18,8 @@ import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { PagesService } from './pages.service';
 
+@ApiBearerAuth()
+@ApiTags('pages')
 @UseGuards(AuthGuard('jwt'))
 @Controller('pages')
 export class PagesController {

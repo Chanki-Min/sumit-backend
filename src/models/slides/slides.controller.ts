@@ -9,11 +9,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CreateSlideDto } from './dto/create-slide.dto';
 import { UpdateSlideDto } from './dto/update-slide.dto';
 import { SlidesService } from './slides.service';
 
+@ApiBearerAuth()
+@ApiTags('slides')
 @UseGuards(AuthGuard('jwt'))
 @Controller('slides')
 export class SlidesController {
