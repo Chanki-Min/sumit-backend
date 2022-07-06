@@ -10,12 +10,12 @@ import { Page } from './entities/page.entity';
 export class PagesService {
   constructor(
     @InjectRepository(Page)
-    private pageRepositry: Repository<Page>,
+    private pageRepository: Repository<Page>,
   ) {}
 
   async create(userId: string, createPageDto: CreatePageDto) {
-    const emptyPageEntity = this.pageRepositry.create();
-    const pageToSave = this.pageRepositry.merge(
+    const emptyPageEntity = this.pageRepository.create();
+    const pageToSave = this.pageRepository.merge(
       emptyPageEntity,
       {
         user_uuid: userId,
@@ -23,12 +23,12 @@ export class PagesService {
       createPageDto,
     );
 
-    return await this.pageRepositry.save(pageToSave);
+    return await this.pageRepository.save(pageToSave);
   }
 
   // TODO: rate-limit
   async findAll(userId: string) {
-    return await this.pageRepositry.find({
+    return await this.pageRepository.find({
       where: {
         user_uuid: userId,
       },
@@ -36,7 +36,7 @@ export class PagesService {
   }
 
   async findOne(userId: string, pageId: string) {
-    return await this.pageRepositry.findOne({
+    return await this.pageRepository.findOne({
       where: {
         user_uuid: userId,
         uuid: pageId,
@@ -45,25 +45,25 @@ export class PagesService {
   }
 
   async update(userId: string, pageId: string, updatePageDto: UpdatePageDto) {
-    const pageToUpdate = await this.pageRepositry.findOne({
+    const pageToUpdate = await this.pageRepository.findOne({
       where: {
         user_uuid: userId,
         uuid: pageId,
       },
     });
 
-    const updatedPage = this.pageRepositry.merge(pageToUpdate, updatePageDto);
-    return await this.pageRepositry.save(updatedPage);
+    const updatedPage = this.pageRepository.merge(pageToUpdate, updatePageDto);
+    return await this.pageRepository.save(updatedPage);
   }
 
   async remove(userId: string, pageId: string) {
-    const pageToDelete = await this.pageRepositry.findOne({
+    const pageToDelete = await this.pageRepository.findOne({
       where: {
         user_uuid: userId,
         uuid: pageId,
       },
     });
 
-    return await this.pageRepositry.remove(pageToDelete);
+    return await this.pageRepository.remove(pageToDelete);
   }
 }
