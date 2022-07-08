@@ -4,8 +4,11 @@
 
 ## Installation
 
+1. 이 레포지토리를 clone 합니다.
+2. 해당 폴더에 ormconfig.json 파일을 생성하고, 노션 > 로그인 정보에 있는 json 텍스트를 입력하고 저장합니다.
+3. 아래 커멘드를 실행합니다
+
 ```bash
-# first, clone this repository
 $ npm install
 ```
 
