@@ -8,6 +8,7 @@ import {
   TreeParent,
   UpdateDateColumn,
 } from 'typeorm';
+
 import {
   BlockFields,
   BlockTypes,

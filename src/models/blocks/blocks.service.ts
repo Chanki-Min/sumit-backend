@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { chown } from 'fs';
 import { TreeRepository } from 'typeorm';
+
 import { CreateBlockDto } from './dto/create-block.dto';
 import { CreateBlukDto } from './dto/create-bulk.dto';
 import { CreateRootDto } from './dto/create-root.dto';
@@ -29,13 +29,13 @@ export class BlocksService {
   }
 
   async create(createBlockDto: CreateBlockDto) {
-    const rootBlock = await this.treeRepository.findOne(
-      createBlockDto.rootBlockId,
-    );
+    const rootBlock = await this.treeRepository.findOneBy({
+      uuid: createBlockDto.rootBlockId,
+    });
 
-    const parentBlock = await this.treeRepository.findOne(
-      createBlockDto.parentId,
-    );
+    const parentBlock = await this.treeRepository.findOneBy({
+      uuid: createBlockDto.rootBlockId,
+    });
 
     const parentAncestors = await this.treeRepository.findAncestors(
       parentBlock,
@@ -61,27 +61,34 @@ export class BlocksService {
   }
 
   async findOneAsFullTree(id: string) {
-    const block = await this.treeRepository.findOne(id);
+    const block = await this.treeRepository.findOneBy({
+      uuid: id,
+    });
     return await this.treeRepository.findDescendantsTree(block);
   }
 
   async findOne(id: string) {
-    return await this.treeRepository.findOne(id);
+    return await this.treeRepository.findOneBy({
+      uuid: id,
+    });
   }
 
   async update(id: string, updateBlockDto: UpdateBlockDto) {
-    const block = await this.treeRepository.findOne(id);
+    const block = await this.treeRepository.findOneBy({
+      uuid: id,
+    });
     block.properties = updateBlockDto.block.properties;
     block.type = updateBlockDto.block.type;
     return await this.treeRepository.save(block);
   }
 
   async remove(deleteBlockDTO: DeleteBlockDTO) {
-    const blockToRemove = await this.treeRepository.findOne(
-      deleteBlockDTO.blockId,
-      {},
-    );
-    const parent = await this.treeRepository.findOne(blockToRemove.pid);
+    const blockToRemove = await this.treeRepository.findOneBy({
+      uuid: deleteBlockDTO.blockId,
+    });
+    const parent = await this.treeRepository.findOneBy({
+      uuid: blockToRemove.pid,
+    });
 
     const parentWithBlockToRemoveWithChild =
       await this.treeRepository.findDescendantsTree(parent);
@@ -111,12 +118,12 @@ export class BlocksService {
   }
 
   async move(id: string, moveBlockDTO: MoveBlockDTO) {
-    const block = await this.treeRepository.findOne(id);
+    const block = await this.treeRepository.findOneBy({ uuid: id });
     const blockWithTree = await this.treeRepository.findDescendantsTree(block);
 
-    const targetParent = await this.treeRepository.findOne(
-      moveBlockDTO.targetBlockId,
-    );
+    const targetParent = await this.treeRepository.findOneBy({
+      uuid: moveBlockDTO.targetBlockId,
+    });
     const targetParentWithTree = await this.treeRepository.findDescendantsTree(
       targetParent,
     );
@@ -133,7 +140,7 @@ export class BlocksService {
         await this.treeRepository.save(m);
       }
     } else {
-      for (const [index, child] of targetParentWithTree.children
+      for (const [_, child] of targetParentWithTree.children
         .sort((c) => c.order)
         .slice(moveBlockDTO.order)
         .entries()) {

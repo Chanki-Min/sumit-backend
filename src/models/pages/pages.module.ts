@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { PagesService } from './pages.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { Page } from './entities/page.entity';
 import { PagesController } from './pages.controller';
+import { PagesService } from './pages.service';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Page])],
   controllers: [PagesController],
-  providers: [PagesService]
+  providers: [PagesService],
 })
 export class PagesModule {}

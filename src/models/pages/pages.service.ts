@@ -1,26 +1,69 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
+import { Page } from './entities/page.entity';
 
 @Injectable()
 export class PagesService {
-  create(createPageDto: CreatePageDto) {
-    return 'This action adds a new page';
+  constructor(
+    @InjectRepository(Page)
+    private pageRepository: Repository<Page>,
+  ) {}
+
+  async create(userId: string, createPageDto: CreatePageDto) {
+    const emptyPageEntity = this.pageRepository.create();
+    const pageToSave = this.pageRepository.merge(
+      emptyPageEntity,
+      {
+        user_uuid: userId,
+      },
+      createPageDto,
+    );
+
+    return await this.pageRepository.save(pageToSave);
   }
 
-  findAll() {
-    return `This action returns all pages`;
+  // TODO: rate-limit
+  async findAll(userId: string) {
+    return await this.pageRepository.find({
+      where: {
+        user_uuid: userId,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} page`;
+  async findOne(userId: string, pageId: string) {
+    return await this.pageRepository.findOne({
+      where: {
+        user_uuid: userId,
+        uuid: pageId,
+      },
+    });
   }
 
-  update(id: number, updatePageDto: UpdatePageDto) {
-    return `This action updates a #${id} page`;
+  async update(userId: string, pageId: string, updatePageDto: UpdatePageDto) {
+    const pageToUpdate = await this.pageRepository.findOne({
+      where: {
+        user_uuid: userId,
+        uuid: pageId,
+      },
+    });
+
+    const updatedPage = this.pageRepository.merge(pageToUpdate, updatePageDto);
+    return await this.pageRepository.save(updatedPage);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} page`;
+  async remove(userId: string, pageId: string) {
+    const pageToDelete = await this.pageRepository.findOne({
+      where: {
+        user_uuid: userId,
+        uuid: pageId,
+      },
+    });
+
+    return await this.pageRepository.remove(pageToDelete);
   }
 }

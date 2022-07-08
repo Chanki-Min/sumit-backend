@@ -1,5 +1,3 @@
-import { Block } from 'src/models/blocks/entities/block.entity';
-import { Page } from 'src/models/pages/entities/page.entity';
 import {
   Column,
   CreateDateColumn,
@@ -10,6 +8,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { Block } from '../../blocks/entities/block.entity';
+import { Page } from '../../pages/entities/page.entity';
 
 @Entity()
 export class Slide {

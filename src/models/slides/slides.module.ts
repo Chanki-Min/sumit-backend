@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { SlidesService } from './slides.service';
+
 import { SlidesController } from './slides.controller';
+import { SlidesService } from './slides.service';
 
 @Module({
   controllers: [SlidesController],
-  providers: [SlidesService]
+  providers: [SlidesService],
 })
 export class SlidesModule {}

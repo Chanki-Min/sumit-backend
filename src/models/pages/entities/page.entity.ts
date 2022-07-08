@@ -1,4 +1,3 @@
-import { Slide } from 'src/models/slides/entities/slide.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,10 +7,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { Slide } from '../../slides/entities/slide.entity';
+
 @Entity()
 export class Page {
   @PrimaryGeneratedColumn('uuid')
-  uuid: number;
+  uuid: string;
 
   @Column({ type: 'varchar', length: 50 })
   user_uuid: string;
@@ -19,11 +20,14 @@ export class Page {
   @Column({ type: 'varchar', length: 50 })
   title: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column({ type: 'varchar', length: 200, nullable: true })
   description: string;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: false })
   share: boolean;
+
+  @Column('simple-array', { nullable: true })
+  hashtags: string[];
 
   @CreateDateColumn()
   createAt: Date;
