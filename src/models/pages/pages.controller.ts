@@ -8,8 +8,12 @@ import {
   Delete,
   UseGuards,
   HttpCode,
+  Put,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { of } from 'rxjs';
 
@@ -17,6 +21,8 @@ import { User, AuthzUser } from '../../decorators/user.decorator';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { PagesService } from './pages.service';
+
+import 'dotenv/config';
 
 @ApiBearerAuth()
 @ApiTags('pages')
@@ -53,6 +59,16 @@ export class PagesController {
     @Body() updatePageDto: UpdatePageDto,
   ) {
     return this.pagesService.update(userId, pageId, updatePageDto);
+  }
+
+  @Put(':pageId/image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @UploadedFiles() file: Express.Multer.File,
+    @User() { sub: userId }: AuthzUser,
+    @Param('pageId') pageId: string,
+  ) {
+    return this.pagesService.uploadImage(userId, pageId, file);
   }
 
   @HttpCode(204)
