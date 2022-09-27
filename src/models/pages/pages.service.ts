@@ -1,5 +1,4 @@
-import path from 'path';
-import { promisify } from 'util';
+import * as path from 'path';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,7 +16,6 @@ AWS.config.update({
 });
 
 const s3 = new AWS.S3();
-const s3UploadAsync = promisify(s3.upload);
 
 @Injectable()
 export class PagesService {
@@ -70,22 +68,22 @@ export class PagesService {
   }
 
   async uploadImage(userId: string, pageId: string, file: Express.Multer.File) {
-    const pageToUpdate = await this.pageRepository.findOne({
-      where: {
-        user_uuid: userId,
-        uuid: pageId,
-      },
-    });
+    // const pageToUpdate = await this.pageRepository.findOne({
+    //   where: {
+    //     user_uuid: userId,
+    //     uuid: pageId,
+    //   },
+    // });
 
-    const s3UploadParam = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: path.join('page-thumb', pageId),
-      ACL: 'public-read',
-      Body: file,
-      ContentType: 'image/png',
-    };
-
-    return await s3UploadAsync(s3UploadParam);
+    return await s3
+      .upload({
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: path.join('page-thumb', pageId),
+        // ACL: 'public-read',
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      })
+      .promise();
   }
 
   async remove(userId: string, pageId: string) {

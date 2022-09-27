@@ -11,6 +11,7 @@ import {
   Put,
   UseInterceptors,
   UploadedFiles,
+  UploadedFile,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -64,7 +65,7 @@ export class PagesController {
   @Put(':pageId/image')
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
-    @UploadedFiles() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @User() { sub: userId }: AuthzUser,
     @Param('pageId') pageId: string,
   ) {

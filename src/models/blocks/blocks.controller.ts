@@ -27,6 +27,7 @@ export class BlocksController {
   constructor(private readonly blocksService: BlocksService) {}
   @Post('bulk')
   createBulk(@Body() createBlukDto: CreateBlukDto) {
+    console.log(createBlukDto);
     return this.blocksService.createBulk(createBlukDto);
   }
 
