@@ -9,6 +9,7 @@ import { AuthzModule } from './authz/authz.module';
 import { BlocksModule } from './models/blocks/blocks.module';
 import { PagesModule } from './models/pages/pages.module';
 import { SlidesModule } from './models/slides/slides.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SlidesModule } from './models/slides/slides.module';
     BlocksModule,
     PagesModule,
     SlidesModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

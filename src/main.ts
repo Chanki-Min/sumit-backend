@@ -9,14 +9,14 @@ async function bootstrap() {
   app.enableCors({
     origin: 'http://localhost:3000',
   });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      enableDebugMessages: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-    }),
-  );
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     enableDebugMessages: true,
+  //     // whitelist: true,
+  //     forbidNonWhitelisted: true,
+  //     // forbidUnknownValues: true,
+  //   }),
+  // );
 
   const config = new DocumentBuilder()
     .setTitle('Sumit api')
