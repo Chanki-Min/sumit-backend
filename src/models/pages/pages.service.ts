@@ -3,7 +3,7 @@ import * as path from 'path';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as AWS from 'aws-sdk';
-import { Repository } from 'typeorm';
+import { Repository, TreeRepository } from 'typeorm';
 
 import { Block } from '../blocks/entities/block.entity';
 import { Slide } from '../slides/entities/slide.entity';
@@ -29,7 +29,7 @@ export class PagesService {
     private slideRepository: Repository<Slide>,
 
     @InjectRepository(Block)
-    private blockRepository: Repository<Block>,
+    private blockRepository: TreeRepository<Block>,
   ) {}
 
   async create(userId: string, createPageDto: CreatePageDto) {
@@ -57,8 +57,16 @@ export class PagesService {
     const page = await this.pageRepository.save(pageToSave);
     emptySlideEntity.page_uuid = page.uuid;
     console.log(emptySlideEntity);
-    await this.blockRepository.save(emptyBlockEntity);
+    const rootBlock = await this.blockRepository.save(emptyBlockEntity);
     await this.slideRepository.save(emptySlideEntity);
+
+    const textBlock = this.blockRepository.create();
+    textBlock.type = 'plain_text';
+    textBlock.properties = { text: '' };
+    textBlock.parent = rootBlock;
+    textBlock.order = 0;
+    textBlock.pid = rootBlock.uuid;
+    await this.blockRepository.save(textBlock);
   }
 
   // TODO: rate-limit

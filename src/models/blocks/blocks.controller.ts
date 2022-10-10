@@ -28,7 +28,7 @@ export class BlocksController {
   @Post('bulk')
   createBulk(@Body() createBlukDto: CreateBlukDto) {
     console.log(createBlukDto);
-    return this.blocksService.createBulk(createBlukDto);
+    return this.blocksService.syncBulk(createBlukDto);
   }
 
   @Post('root')

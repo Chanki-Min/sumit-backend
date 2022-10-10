@@ -32,7 +32,7 @@ export class Block {
   @Column({ type: 'int' })
   order: number;
 
-  @TreeParent()
+  @TreeParent({ onDelete: 'CASCADE' })
   parent: Block;
 
   @Column({ nullable: true })

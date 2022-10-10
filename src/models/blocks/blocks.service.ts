@@ -64,6 +64,7 @@ export class BlocksService {
     const block = await this.treeRepository.findOneBy({
       uuid: id,
     });
+
     return await this.treeRepository.findDescendantsTree(block);
   }
 
@@ -161,20 +162,29 @@ export class BlocksService {
     //   }
   }
 
-  async createBulk({ block }: CreateBlukDto, parent?: Block) {
-    const newBlock = this.treeRepository.create();
-    newBlock.uuid = block.uuid.replace(/-/gi, '');
-    newBlock.type = block.type;
-    newBlock.properties = block.properties;
-    newBlock.order = block.order;
-    if (parent) {
-      newBlock.parent = parent;
+  async syncBulk({ block }: CreateBlukDto, parent?: Block) {
+    let currBlock = await this.treeRepository.findOneBy({ uuid: block.uuid });
+    if (currBlock !== null && currBlock.type !== 'root_block') {
+      await this.treeRepository.remove(currBlock);
     }
-    const saved = await this.treeRepository.save(newBlock);
+
+    if (currBlock === null || currBlock.type !== 'root_block') {
+      currBlock = this.treeRepository.create();
+      currBlock.uuid = block.uuid.replace(/-/gi, '');
+      // newBlock.uuid = block.uuid.replace(/-/gi, '');
+      currBlock.type = block.type;
+      currBlock.properties = block.properties;
+      currBlock.order = block.order;
+    }
+
+    if (parent) {
+      currBlock.parent = parent;
+    }
+    const saved = await this.treeRepository.save(currBlock);
 
     if (block.children.length > 0) {
       for (const child of block.children.sort((a, b) => a.order - b.order)) {
-        await this.createBulk({ block: child }, saved);
+        await this.syncBulk({ block: child }, saved);
       }
     }
   }
