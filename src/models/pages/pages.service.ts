@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as AWS from 'aws-sdk';
 import { Repository } from 'typeorm';
 
+import { Block } from '../blocks/entities/block.entity';
+import { Slide } from '../slides/entities/slide.entity';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { Page } from './entities/page.entity';
@@ -22,10 +24,28 @@ export class PagesService {
   constructor(
     @InjectRepository(Page)
     private pageRepository: Repository<Page>,
+
+    @InjectRepository(Slide)
+    private slideRepository: Repository<Slide>,
+
+    @InjectRepository(Block)
+    private blockRepository: Repository<Block>,
   ) {}
 
   async create(userId: string, createPageDto: CreatePageDto) {
     const emptyPageEntity = this.pageRepository.create();
+    const emptySlideEntity = this.slideRepository.create();
+
+    const emptyBlockEntity = this.blockRepository.create();
+    emptyBlockEntity.type = 'root_block';
+    emptyBlockEntity.properties = {};
+
+    emptyBlockEntity.order = 0;
+
+    emptySlideEntity.root_block = emptyBlockEntity;
+    emptySlideEntity.order = 0;
+    emptySlideEntity.pathname = '/';
+
     const pageToSave = this.pageRepository.merge(
       emptyPageEntity,
       {
@@ -34,7 +54,11 @@ export class PagesService {
       createPageDto,
     );
 
-    return await this.pageRepository.save(pageToSave);
+    const page = await this.pageRepository.save(pageToSave);
+    emptySlideEntity.page_uuid = page.uuid;
+    console.log(emptySlideEntity);
+    await this.blockRepository.save(emptyBlockEntity);
+    await this.slideRepository.save(emptySlideEntity);
   }
 
   // TODO: rate-limit
@@ -52,6 +76,7 @@ export class PagesService {
         user_uuid: userId,
         uuid: pageId,
       },
+      relations: ['slides'],
     });
   }
 

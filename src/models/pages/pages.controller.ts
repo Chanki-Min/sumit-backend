@@ -59,6 +59,7 @@ export class PagesController {
     @Param('pageId') pageId: string,
     @Body() updatePageDto: UpdatePageDto,
   ) {
+    console.log(pageId);
     return this.pagesService.update(userId, pageId, updatePageDto);
   }
 
