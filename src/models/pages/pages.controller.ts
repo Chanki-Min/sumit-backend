@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -43,6 +44,15 @@ export class PagesController {
   @Get()
   async findAllByUser(@User() { sub: userId }: AuthzUser) {
     return this.pagesService.findAll(userId);
+  }
+
+  @Get('/search')
+  async search(
+    @User() { sub: userId }: AuthzUser,
+    @Query('query') query: string,
+  ) {
+    console.log('sc', query);
+    return this.pagesService.search(userId, query);
   }
 
   @Get(':pageId')

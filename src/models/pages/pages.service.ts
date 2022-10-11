@@ -3,7 +3,7 @@ import * as path from 'path';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as AWS from 'aws-sdk';
-import { Repository, TreeRepository } from 'typeorm';
+import { ILike, Like, Repository, TreeRepository } from 'typeorm';
 
 import { Block } from '../blocks/entities/block.entity';
 import { Slide } from '../slides/entities/slide.entity';
@@ -74,6 +74,16 @@ export class PagesService {
     return await this.pageRepository.find({
       where: {
         user_uuid: userId,
+      },
+    });
+  }
+
+  async search(userId: string, query: string) {
+    // TODO: page filtering
+
+    return await this.pageRepository.find({
+      where: {
+        title: Like(`%${query}%`),
       },
     });
   }
