@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TreeRepository } from 'typeorm';
+import { DataSource, TreeRepository } from 'typeorm';
 
 import { CreateBlockDto } from './dto/create-block.dto';
 import { CreateBlukDto } from './dto/create-bulk.dto';
@@ -16,6 +16,7 @@ export class BlocksService {
   constructor(
     @InjectRepository(Block)
     private treeRepository: TreeRepository<Block>,
+    private dataSource: DataSource,
   ) {}
 
   async createRoot(createRootDto: CreateRootDto) {
@@ -163,29 +164,41 @@ export class BlocksService {
   }
 
   async syncBulk({ block }: CreateBlukDto, parent?: Block) {
-    let currBlock = await this.treeRepository.findOneBy({ uuid: block.uuid });
-    if (currBlock !== null && currBlock.type !== 'root_block') {
-      await this.treeRepository.remove(currBlock);
-    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const repo = queryRunner.manager.getTreeRepository(Block);
 
-    if (currBlock === null || currBlock.type !== 'root_block') {
-      currBlock = this.treeRepository.create();
-      currBlock.uuid = block.uuid.replace(/-/gi, '');
-      // newBlock.uuid = block.uuid.replace(/-/gi, '');
-      currBlock.type = block.type;
-      currBlock.properties = block.properties;
-      currBlock.order = block.order;
-    }
-
-    if (parent) {
-      currBlock.parent = parent;
-    }
-    const saved = await this.treeRepository.save(currBlock);
-
-    if (block.children.length > 0) {
-      for (const child of block.children.sort((a, b) => a.order - b.order)) {
-        await this.syncBulk({ block: child }, saved);
+    try {
+      let currBlock = await repo.findOneBy({ uuid: block.uuid });
+      if (currBlock !== null && currBlock.type !== 'root_block') {
+        await repo.remove(currBlock);
       }
+
+      if (currBlock === null || currBlock.type !== 'root_block') {
+        currBlock = repo.create();
+        currBlock.uuid = block.uuid.replace(/-/gi, '');
+        // newBlock.uuid = block.uuid.replace(/-/gi, '');
+        currBlock.type = block.type;
+        currBlock.properties = block.properties;
+        currBlock.order = block.order;
+      }
+
+      if (parent) {
+        currBlock.parent = parent;
+      }
+      const saved = await repo.save(currBlock);
+
+      if (block.children.length > 0) {
+        for (const child of block.children.sort((a, b) => a.order - b.order)) {
+          await this.syncBulk({ block: child }, saved);
+        }
+      }
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
   }
 }
