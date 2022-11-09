@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { BlockDTO } from '../dto/create-block.dto';
 import {
   BlockFields,
   BlockTypes,
@@ -43,4 +44,7 @@ export class Block {
 
   @UpdateDateColumn()
   updateAt: Date;
+
+  @Column('jsonb', { nullable: true })
+  blockJson?: BlockDTO;
 }

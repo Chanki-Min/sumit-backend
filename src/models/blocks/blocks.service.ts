@@ -164,42 +164,49 @@ export class BlocksService {
   }
 
   async syncBulk({ block }: CreateBlukDto, parent?: Block) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    const repo = queryRunner.manager.getTreeRepository(Block);
+    const currBlock = await this.treeRepository.findOneBy({ uuid: block.uuid });
 
-    try {
-      let currBlock = await repo.findOneBy({ uuid: block.uuid });
-      if (currBlock !== null && currBlock.type !== 'root_block') {
-        await repo.remove(currBlock);
-      }
+    console.log(currBlock, block.uuid, '\n\n');
 
-      if (currBlock === null || currBlock.type !== 'root_block') {
-        currBlock = repo.create();
-        currBlock.uuid = block.uuid.replace(/-/gi, '');
-        // newBlock.uuid = block.uuid.replace(/-/gi, '');
-        currBlock.type = block.type;
-        currBlock.properties = block.properties;
-        currBlock.order = block.order;
-      }
+    currBlock.blockJson = {
+      ...block,
+    };
 
-      if (parent) {
-        currBlock.parent = parent;
-      }
-      const saved = await repo.save(currBlock);
+    const r = await this.treeRepository.save(currBlock);
 
-      if (block.children.length > 0) {
-        for (const child of block.children.sort((a, b) => a.order - b.order)) {
-          await this.syncBulk({ block: child }, saved);
-        }
-      }
-      await queryRunner.commitTransaction();
-    } catch (e) {
-      await queryRunner.rollbackTransaction();
-    } finally {
-      await queryRunner.release();
-    }
+    return r;
+
+    // try {
+    //   let currBlock = await repo.findOneBy({ uuid: block.uuid });
+    //   if (currBlock !== null && currBlock.type !== 'root_block') {
+    //     await repo.remove(currBlock);
+    //   }
+
+    //   if (currBlock === null || currBlock.type !== 'root_block') {
+    //     currBlock = repo.create();
+    //     currBlock.uuid = block.uuid.replace(/-/gi, '');
+    //     // newBlock.uuid = block.uuid.replace(/-/gi, '');
+    //     currBlock.type = block.type;
+    //     currBlock.properties = block.properties;
+    //     currBlock.order = block.order;
+    //   }
+
+    //   if (parent) {
+    //     currBlock.parent = parent;
+    //   }
+    //   const saved = await repo.save(currBlock);
+
+    //   if (block.children.length > 0) {
+    //     for (const child of block.children.sort((a, b) => a.order - b.order)) {
+    //       await this.syncBulk({ block: child }, saved);
+    //     }
+    //   }
+    //   await queryRunner.commitTransaction();
+    // } catch (e) {
+    //   await queryRunner.rollbackTransaction();
+    // } finally {
+    //   await queryRunner.release();
+    // }
   }
 }
 
