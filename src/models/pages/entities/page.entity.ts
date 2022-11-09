@@ -37,6 +37,7 @@ export class Page {
 
   @OneToMany(() => Slide, (slide) => slide.page_uuid, {
     cascade: false,
+    eager: true,
   })
   slides: Slide[];
 }

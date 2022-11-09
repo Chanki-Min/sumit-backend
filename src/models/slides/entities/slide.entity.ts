@@ -29,7 +29,7 @@ export class Slide {
   })
   page_uuid: string;
 
-  @OneToOne(() => Block)
+  @OneToOne(() => Block, { eager: true })
   @JoinColumn()
   root_block: Block;
 
